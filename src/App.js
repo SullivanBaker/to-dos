@@ -1,11 +1,22 @@
-import React, { Component } from "react";
-import "./index.css";
-import todosList from "./todos.json";
+import React, { Component } from "react"
+import "./index.css"
+import todosList from "./todos.json"
+import TodoList from "./todoList.js"
+import { Route , NavLink } from "react-router-dom"
 
 class App extends Component {
   state = {
     todos: todosList
-  };
+  }
+  findItemsLeft = event => {
+    let items = 0
+    for (let i=0; i<this.state.todos.length; i++) {
+      if (this.state.todos[i].completed === false) {
+        items = items + 1
+      }
+    }
+    return items
+  }
   handleToggleComplete = todoIdToToggle => event => {
     const newTodos = this.state.todos.slice()
     const newnewTodos = newTodos.map(todo => {
@@ -17,10 +28,10 @@ class App extends Component {
       }
       return todo
     })
-    this.setState({ todos: newnewTodos})
+    this.setState({ todos: newnewTodos })
   }
   handleAddTodo = event => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       const newTodo = {
         userID: 1,
         id: Math.floor(Math.random() * 10000000),
@@ -29,7 +40,7 @@ class App extends Component {
       }
       const newTodos = this.state.todos.slice()
       newTodos.push(newTodo)
-      this.setState({todos: newTodos})
+      this.setState({ todos: newTodos })
       event.target.value = ""
     }
   }
@@ -39,7 +50,7 @@ class App extends Component {
   }
   handleDeleteCompleted = event => {
     let newTodos = this.state.todos.filter(todo => todo.completed === false)
-    this.setState({todos: newTodos })
+    this.setState({ todos: newTodos })
   }
   render() {
     return (
@@ -53,65 +64,59 @@ class App extends Component {
             autoFocus
           />
         </header>
-        <TodoList
-          todos={this.state.todos}
-          handleToggleComplete={this.handleToggleComplete}
-          handleDelete={this.handleDelete}
+        <Route
+          exact
+          path='/'
+          render={() => (
+            <TodoList
+            todos={this.state.todos}
+            handleToggleComplete={this.handleToggleComplete}
+            handleDelete={this.handleDelete}
+            />
+          )}
+        />
+        <Route
+          path="/active" 
+          render={() => (
+            <TodoList
+            todos={this.state.todos.filter(todo => todo.completed === false)}
+            handleToggleComplete={this.handleToggleComplete}
+            handleDelete={this.handleDelete}
+            />
+          )} 
+        />
+        <Route
+          path="/completed" 
+          render={() => (
+            <TodoList
+            todos={this.state.todos.filter(todo => todo.completed === true)}
+            handleToggleComplete={this.handleToggleComplete}
+            handleDelete={this.handleDelete}
+            />
+          )} 
         />
         <footer className="footer">
           <span className="todo-count">
-            <strong>0</strong> item(s) left
+            <strong>{this.findItemsLeft()}</strong> item(s) left
           </span>
+          <ul className="filters">
+            <li>
+              <NavLink exact to="/" activeClassName='selected'>All</NavLink>
+            </li>
+            <li>
+              <NavLink to="/active" activeClassName='selected'>Active</NavLink>
+            </li>
+            <li>
+              <NavLink to="/completed" activeClassName='selected'>Completed</NavLink>
+            </li>
+          </ul>
           <button
-          className="clear-completed"
-          onClick={this.handleDeleteCompleted}
-          >Clear completed</button>
+            className="clear-completed"
+            onClick={this.handleDeleteCompleted}>Clear completed</button>
         </footer>
       </section>
-    );
+    )
   }
 }
 
-class TodoItem extends Component {
-  render() {
-    return (
-      <li className={this.props.completed ? "completed" : ""}>
-        <div className="view">
-          <input
-            className="toggle"
-            type="checkbox"
-            checked={this.props.completed}
-            onChange={this.props.handleToggleComplete}
-          />
-          <label>{this.props.title}</label>
-          <button
-            className="destroy"
-            onClick={this.props.handleDelete}
-          />
-        </div>
-      </li>
-    );
-  }
-}
-
-class TodoList extends Component {
-  render() {
-    return (
-      <section className="main">
-        <ul className="todo-list">
-          {this.props.todos.map(todo => (
-            <TodoItem
-              key={todo.id}
-              title={todo.title} 
-              completed={todo.completed}
-              handleToggleComplete={this.props.handleToggleComplete(todo.id)}
-              handleDelete={this.props.handleDelete(todo.id)}
-            />
-          ))}
-        </ul>
-      </section>
-    );
-  }
-}
-
-export default App;
+export default App
