@@ -3,6 +3,8 @@ import "./index.css"
 import todosList from "./todos.json"
 import TodoList from "./todoList.js"
 import { Route , NavLink } from "react-router-dom"
+import { connect } from 'react-redux'
+import { addTodo , toggleTodo ,  deleteTodo , clearCompletedTodos } from './actions'
 
 class App extends Component {
   state = {
@@ -11,46 +13,26 @@ class App extends Component {
   findItemsLeft = event => {
     let items = 0
     for (let i=0; i<this.state.todos.length; i++) {
-      if (this.state.todos[i].completed === false) {
+      if (this.props.todos[i].completed === false) {
         items = items + 1
       }
     }
     return items
   }
   handleToggleComplete = todoIdToToggle => event => {
-    const newTodos = this.state.todos.slice()
-    const newnewTodos = newTodos.map(todo => {
-      if (todo.id === todoIdToToggle) {
-        return {
-          ...todo,
-          completed: !todo.completed
-        }
-      }
-      return todo
-    })
-    this.setState({ todos: newnewTodos })
+    this.props.toggleTodo(todoIdToToggle)
   }
   handleAddTodo = event => {
     if (event.key === "Enter") {
-      const newTodo = {
-        userID: 1,
-        id: Math.floor(Math.random() * 10000000),
-        title: event.target.value,
-        completed: false
-      }
-      const newTodos = this.state.todos.slice()
-      newTodos.push(newTodo)
-      this.setState({ todos: newTodos })
+      this.props.addTodo(event.target.value)
       event.target.value = ""
     }
   }
   handleDelete = todoIdToDelete => event => {
-    let newTodos = this.state.todos.filter(todo => todo.id !== todoIdToDelete)
-    this.setState({ todos: newTodos })
+    this.props.deleteTodo(todoIdToDelete)
   }
   handleDeleteCompleted = event => {
-    let newTodos = this.state.todos.filter(todo => todo.completed === false)
-    this.setState({ todos: newTodos })
+    this.props.clearCompletedTodos()
   }
   render() {
     return (
@@ -64,37 +46,27 @@ class App extends Component {
             autoFocus
           />
         </header>
-        <Route
-          exact
-          path='/'
-          render={() => (
-            <TodoList
-            todos={this.state.todos}
+        <Route exact path='/'>
+          <TodoList
+            todos={this.props.todos}
             handleToggleComplete={this.handleToggleComplete}
             handleDelete={this.handleDelete}
-            />
-          )}
-        />
-        <Route
-          path="/active" 
-          render={() => (
-            <TodoList
-            todos={this.state.todos.filter(todo => todo.completed === false)}
+          />
+        </Route>
+        <Route path="/active">
+          <TodoList
+            todos={this.props.todos.filter(todo => todo.completed === false)}
             handleToggleComplete={this.handleToggleComplete}
             handleDelete={this.handleDelete}
-            />
-          )} 
-        />
-        <Route
-          path="/completed" 
-          render={() => (
-            <TodoList
-            todos={this.state.todos.filter(todo => todo.completed === true)}
+          />
+        </Route>
+        <Route path="/completed">
+          <TodoList
+            todos={this.props.todos.filter(todo => todo.completed === true)}
             handleToggleComplete={this.handleToggleComplete}
             handleDelete={this.handleDelete}
-            />
-          )} 
-        />
+          />
+        </Route>
         <footer className="footer">
           <span className="todo-count">
             <strong>{this.findItemsLeft()}</strong> item(s) left
@@ -119,4 +91,20 @@ class App extends Component {
   }
 }
 
-export default App
+// asking connect to read certain values from the redux state
+// this.props.todos
+const mapStatetoProps = state => {
+  return {
+    todos: state.todos
+  }
+}
+
+// this.props.addTodo
+const mapDispatchToProps = {
+  addTodo,
+  toggleTodo,
+  deleteTodo,
+  clearCompletedTodos
+}
+
+export default connect(mapStatetoProps, mapDispatchToProps)(App)
