@@ -12,7 +12,7 @@ class App extends Component {
   }
   findItemsLeft = event => {
     let items = 0
-    for (let i=0; i<this.state.todos.length; i++) {
+    for (let i=0; i<this.props.todos.length; i++) {
       if (this.props.todos[i].completed === false) {
         items = items + 1
       }
