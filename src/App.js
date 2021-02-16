@@ -38,7 +38,7 @@ class App extends Component {
     return (
       <section className="todoapp">
         <header className="header">
-          <h1>todos</h1>
+          <h1>to-dos</h1>
           <input
             className="new-todo"
             placeholder="What needs to be done?"
@@ -91,15 +91,12 @@ class App extends Component {
   }
 }
 
-// asking connect to read certain values from the redux state
-// this.props.todos
 const mapStatetoProps = state => {
   return {
     todos: state.todos
   }
 }
 
-// this.props.addTodo
 const mapDispatchToProps = {
   addTodo,
   toggleTodo,
